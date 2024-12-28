@@ -2,7 +2,7 @@ import nodeFetch from "node-fetch";
 (globalThis.fetch as typeof globalThis.fetch) = nodeFetch as never;
 
 import { Action, ActionPanel, Detail, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { getVideoTranscript } from "./utils/getVideoTranscript";
 import { useRaycastAISummary } from "./hooks/raycast/useRaycastAISummary";
 import { BrowserExtension, environment } from "@raycast/api";
@@ -18,13 +18,36 @@ function canAccessBrowserExtension() {
 
 export default function Command() {
     const [summary, setSummary] = useState<string>();
-    const [summaryIsLoading, setSummaryIsLoading] = useState<boolean>(true);
+    const [summaryIsLoading, setSummaryIsLoading] = useState<boolean>(false);
     const [transcript, setTranscript] = useState<string | undefined>();
     const [videoData, setVideoData] = useState<VideoDataTypes>();
     const { pop } = useNavigation();
 
+    // Ref для отслеживания активного запроса
+    const activeRequestRef = useRef<AbortController | null>(null);
+
+    // Функция очистки состояний
+    const resetStates = useCallback(() => {
+        setSummary(undefined);
+        setTranscript(undefined);
+        setVideoData(undefined);
+        setSummaryIsLoading(false);
+    }, []);
+
     useEffect(() => {
         async function init() {
+            // Отменяем предыдущий запрос если он есть
+            if (activeRequestRef.current) {
+                activeRequestRef.current.abort();
+            }
+
+            // Создаем новый контроллер для текущего запроса
+            const abortController = new AbortController();
+            activeRequestRef.current = abortController;
+
+            resetStates();
+            setSummaryIsLoading(true);
+
             if (!canAccessBrowserExtension()) {
                 showToast({
                     style: Toast.Style.Failure,
@@ -36,8 +59,10 @@ export default function Command() {
             }
 
             try {
+                // Проверяем, не был ли запрос отменен
+                if (abortController.signal.aborted) return;
+
                 const tabs = await BrowserExtension.getTabs();
-                console.log(tabs);
                 const activeTab = tabs.find((tab) => tab.active);
 
                 if (!activeTab || !activeTab.url.startsWith("https://www.youtube.com/watch?v=")) {
@@ -64,6 +89,7 @@ export default function Command() {
 
                 // Get video information
                 try {
+                    if (abortController.signal.aborted) return;
                     const data = await getVideoData(video);
                     setVideoData(data);
                 } catch (e) {
@@ -79,6 +105,7 @@ export default function Command() {
 
                 // Get transcript
                 try {
+                    if (abortController.signal.aborted) return;
                     const transcriptText = await getVideoTranscript(video);
                     if (!transcriptText) {
                         showToast({
@@ -93,40 +120,51 @@ export default function Command() {
                         return;
                     }
                     setTranscript(transcriptText);
+
+                    // Сразу запускаем получение summary
+                    if (abortController.signal.aborted) return;
+                    await useGetSummary({
+                        transcript: transcriptText,
+                        setSummaryIsLoading,
+                        setSummary,
+                    });
                 } catch (e) {
+                    if (!abortController.signal.aborted) {
+                        showToast({
+                            style: Toast.Style.Failure,
+                            title: ALERT.title,
+                            message: "Error fetching video transcript: " + (e as Error).message,
+                        });
+                        setSummaryIsLoading(false);
+                    }
+                }
+            } catch (e) {
+                if (!abortController.signal.aborted) {
                     showToast({
                         style: Toast.Style.Failure,
                         title: ALERT.title,
-                        message: "Error fetching video transcript: " + (e as Error).message,
+                        message: "Unexpected error: " + (e as Error).message,
                     });
                     setSummaryIsLoading(false);
                 }
-            } catch (e) {
-                showToast({
-                    style: Toast.Style.Failure,
-                    title: ALERT.title,
-                    message: "Unexpected error: " + (e as Error).message,
-                });
-                setSummaryIsLoading(false);
             }
         }
 
         init();
-    }, []);
 
-    useEffect(() => {
-        if (transcript === undefined) return;
-        useGetSummary({
-            transcript,
-            setSummaryIsLoading,
-            setSummary,
-        });
-    }, [transcript]);
+        // Cleanup функция
+        return () => {
+            if (activeRequestRef.current) {
+                activeRequestRef.current.abort();
+                activeRequestRef.current = null;
+            }
+        };
+    }, [resetStates]);
 
-    const askQuestion = (question: string) => {
+    const askQuestion = useCallback((question: string) => {
         if (question === undefined || transcript === undefined) return;
         useFollowUpQuestion(question, transcript, setSummary, pop);
-    };
+    }, [transcript, pop]);
 
     if (!videoData) return null;
 
