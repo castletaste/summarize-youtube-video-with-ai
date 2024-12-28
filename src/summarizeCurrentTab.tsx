@@ -29,7 +29,7 @@ export default function Command() {
                 showToast({
                     style: Toast.Style.Failure,
                     title: "Error",
-                    message: "Требуется установить расширение Raycast для браузера"
+                    message: "Raycast browser extension is required"
                 });
                 setSummaryIsLoading(false);
                 return;
@@ -37,13 +37,14 @@ export default function Command() {
 
             try {
                 const tabs = await BrowserExtension.getTabs();
+                console.log(tabs);
                 const activeTab = tabs.find((tab) => tab.active);
 
                 if (!activeTab || !activeTab.url.startsWith("https://www.youtube.com/watch?v=")) {
                     showToast({
                         style: Toast.Style.Failure,
                         title: "Error",
-                        message: "Откройте YouTube видео в активной вкладке браузера"
+                        message: "Please open a YouTube video in the active browser tab"
                     });
                     setSummaryIsLoading(false);
                     return;
@@ -61,12 +62,12 @@ export default function Command() {
                     return;
                 }
 
-                // Получаем информацию о видео
+                // Get video information
                 try {
                     const data = await getVideoData(video);
                     setVideoData(data);
                 } catch (e) {
-                    console.error("Ошибка получения информации о видео:", e);
+                    console.error("Error fetching video data:", e);
                     showToast({
                         style: Toast.Style.Failure,
                         title: ALERT.title,
@@ -76,17 +77,17 @@ export default function Command() {
                     return;
                 }
 
-                // Получаем транскрипт
+                // Get transcript
                 try {
                     const transcriptText = await getVideoTranscript(video);
                     if (!transcriptText) {
                         showToast({
                             style: Toast.Style.Failure,
                             title: ALERT.title,
-                            message: "Не удалось получить субтитры для этого видео. Убедитесь, что:\n\n" +
-                                "1. Видео имеет субтитры (автоматические или добавленные вручную)\n" +
-                                "2. Субтитры доступны на английском или русском языке\n" +
-                                "3. Видео не является прямой трансляцией или премьерой"
+                            message: "Failed to get video subtitles. Please make sure that:\n\n" +
+                                "1. The video has subtitles (automatic or manually added)\n" +
+                                "2. Subtitles are available in English\n" +
+                                "3. The video is not a live stream or premiere"
                         });
                         setSummaryIsLoading(false);
                         return;

@@ -104,6 +104,10 @@
           "title": "Mistral Nemo"
         },
         {
+          "value": "mistral-large2",
+          "title": "Mistral Large 2"
+        },
+        {
           "value": "sonar-small",
           "title": "Perplexity Llama 3.1 Sonar Small"
         },
