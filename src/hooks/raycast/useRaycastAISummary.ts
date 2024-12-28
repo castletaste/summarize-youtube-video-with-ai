@@ -1,7 +1,7 @@
 import { AI, environment, getPreferenceValues, popToRoot, showToast, Toast } from "@raycast/api";
 import React from "react";
 import { ALERT, SUCCESS_SUMMARIZING_VIDEO, SUMMARIZING_VIDEO } from "../../const/toast_messages";
-import { Preferences } from "../../summarizeVideo";
+import { Preferences } from "../../models/preferences";
 import { getAiInstructionSnippet } from "../../utils/getAiInstructionSnippets";
 
 type GetRaycastAISummaryProps = {
@@ -16,7 +16,7 @@ export const useRaycastAISummary = async ({
   setSummary,
 }: GetRaycastAISummaryProps) => {
   const preferences = getPreferenceValues() as Preferences;
-  const { chosenAi, creativity, language } = preferences;
+  const { chosenAi, creativity, language, model } = preferences;
 
   if (chosenAi !== "raycastai") {
     return;
@@ -38,6 +38,7 @@ export const useRaycastAISummary = async ({
 
   const raycastSummary = AI.ask(aiInstructions, {
     creativity: parseInt(creativity),
+    model: AI.Model[model as keyof typeof AI.Model]
   });
 
   showToast({

@@ -5,11 +5,144 @@
   "description": "Summarize any YouTube Video with AI. Choose between Raycast AI or ChatGPT. You have to either be a Raycast Pro Member or have an OpenAI API Key.",
   "icon": "extension_icon.png",
   "author": "iKasch",
+  "contributors": [
+    "castletaste"
+  ],
   "categories": [
     "Productivity",
     "Web"
   ],
   "license": "MIT",
+  "preferences": [
+    {
+      "name": "language",
+      "title": "Language",
+      "description": "Define the language which the AI should use to summarize the video.",
+      "type": "textfield",
+      "default": "english",
+      "required": false
+    },
+    {
+      "name": "chosenAi",
+      "title": "Choose AI",
+      "description": "Choose between Raycast AI or ChatGPT",
+      "type": "dropdown",
+      "default": "raycastai",
+      "data": [
+        {
+          "value": "anthropic",
+          "title": "Anthropic Claude"
+        },
+        {
+          "value": "openai",
+          "title": "OpenaAI ChatGPT"
+        },
+        {
+          "value": "raycastai",
+          "title": "Raycast AI"
+        }
+      ],
+      "required": true
+    },
+    {
+      "name": "model",
+      "title": "Model",
+      "description": "Choose the model you want to use.",
+      "type": "dropdown",
+      "default": "anthropic-claude-haiku",
+      "data": [
+        {
+          "value": "anthropic-claude-sonnet",
+          "title": "Anthropic Claude Sonnet"
+        },
+        {
+          "value": "anthropic-claude-haiku",
+          "title": "Anthropic Claude Haiku"
+        },
+        {
+          "value": "anthropic-claude-opus",
+          "title": "Anthropic Claude Opus"
+        },
+        {
+          "value": "gpt-4",
+          "title": "OpenAI GPT-4"
+        },
+        {
+          "value": "gpt-4-turbo",
+          "title": "OpenAI GPT-4 Turbo"
+        },
+        {
+          "value": "gpt-4o",
+          "title": "OpenAI GPT-4o"
+        },
+        {
+          "value": "gpt-4o-mini",
+          "title": "OpenAI GPT-4o Mini"
+        },
+        {
+          "value": "llama-3-70b",
+          "title": "Llama 3 70B"
+        },
+        {
+          "value": "llama-3.1-8b",
+          "title": "Llama 3.1 8B"
+        },
+        {
+          "value": "llama-3.1-405b",
+          "title": "Llama 3.1 405B"
+        },
+        {
+          "value": "llama-3.3-70b",
+          "title": "Llama 3.3 70B"
+        },
+        {
+          "value": "mixtral-8x7b",
+          "title": "Mixtral 8x7B"
+        },
+        {
+          "value": "mistral-nemo",
+          "title": "Mistral Nemo"
+        },
+        {
+          "value": "sonar-small",
+          "title": "Perplexity Llama 3.1 Sonar Small"
+        },
+        {
+          "value": "sonar-large",
+          "title": "Perplexity Llama 3.1 Sonar Large"
+        },
+        {
+          "value": "sonar-huge",
+          "title": "Perplexity Llama 3.1 Sonar Huge"
+        }
+      ],
+      "required": false
+    },
+    {
+      "name": "creativity",
+      "title": "Creativity",
+      "description": "Choose how creative the AI should be.",
+      "type": "textfield",
+      "default": "0.1",
+      "required": false
+    },
+    {
+      "name": "openaiApiToken",
+      "title": "OpenAI API Token",
+      "description": "Your OpenAI API Token. Required if you choose ChatGPT as your AI.",
+      "type": "password",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "anthropicApiToken",
+      "title": "Anthropic API Token",
+      "description": "Your Anthropic API Token. Required if you choose Anthropic Claude as your AI.",
+      "type": "password",
+      "default": "",
+      "required": false
+    }
+  ],
   "commands": [
     {
       "name": "summarizeVideo",
@@ -23,91 +156,20 @@
           "type": "text",
           "required": true
         }
-      ],
-      "preferences": [
-        {
-          "name": "chosenAi",
-          "title": "Choose AI",
-          "description": "Choose between Raycast AI or ChatGPT",
-          "type": "dropdown",
-          "default": "raycastai",
-          "data": [
-            {
-              "value": "anthropic",
-              "title": "Anthropic Claude"
-            },
-            {
-              "value": "openai",
-              "title": "OpenaAI ChatGPT"
-            },
-            {
-              "value": "raycastai",
-              "title": "Raycast AI"
-            }
-          ],
-          "required": true
-        },
-        {
-          "name": "creativity",
-          "title": "Creativity",
-          "description": "Choose how creative the AI should be.",
-          "type": "dropdown",
-          "default": "0.5",
-          "data": [
-            {
-              "value": "0",
-              "title": "None"
-            },
-            {
-              "value": "0.5",
-              "title": "Low"
-            },
-            {
-              "value": "1",
-              "title": "Medium"
-            },
-            {
-              "value": "1.5",
-              "title": "High"
-            },
-            {
-              "value": "2",
-              "title": "Maximum"
-            }
-          ],
-          "required": false
-        },
-        {
-          "name": "openaiApiToken",
-          "title": "OpenAI API Token",
-          "description": "Your OpenAI API Token. Required if you choose ChatGPT as your AI.",
-          "type": "password",
-          "default": "",
-          "required": false
-        },
-        {
-          "name": "anthropicApiToken",
-          "title": "Anthropic API Token",
-          "description": "Your Anthropic API Token. Required if you choose Anthropic Claude as your AI.",
-          "type": "password",
-          "default": "",
-          "required": false
-        },
-        {
-          "name": "language",
-          "title": "Language",
-          "description": "Define the language which the AI should use to summarize the video.",
-          "type": "textfield",
-          "default": "english",
-          "required": false
-        }
       ]
+    },
+    {
+      "name": "summarizeCurrentTab",
+      "title": "Summarize Current Tab",
+      "description": "Summarize the current YouTube video in the active tab.",
+      "mode": "view"
     }
   ],
   "dependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
     "@raycast/api": "^1.88.4",
-    "@raycast/utils": "^1.17.0",
+    "@raycast/utils": "^1.18.1",
+    "@types/node-fetch": "^2.6.12",
     "date-fns": "^4.1.0",
     "node-fetch": "^3.3.2",
     "openai": "^4.77.0",
@@ -115,12 +177,12 @@
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.11",
-    "@types/node": "^20.8.10",
-    "@types/react": "^18.3.3",
-    "eslint": "^8.57.0",
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.3.18",
+    "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^5.1.0",
-    "prettier": "^3.3.3",
-    "typescript": "^5.4.5",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
     "ytdl-core": "^4.11.5"
   },
   "scripts": {

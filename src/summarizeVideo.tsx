@@ -24,13 +24,6 @@ import { getVideoTranscript } from "./utils/getVideoTranscript";
 interface SummarizeVideoProps {
   video: string;
 }
-export type Preferences = {
-  chosenAi: "anthropic" | "openai" | "raycastai";
-  creativity: "0" | "0.5" | "1" | "1.5" | "2";
-  openaiApiToken: string;
-  anthropicApiToken: string;
-  language: string;
-};
 
 const SummarizeVideo = (
   props: LaunchProps<{

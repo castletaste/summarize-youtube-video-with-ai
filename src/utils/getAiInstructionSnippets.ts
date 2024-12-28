@@ -13,7 +13,7 @@ export function getSummaryBlockSnippet(
 }
 
 export function getAiInstructionSnippet(language: string, temporarySummary: string, transcript: string | undefined) {
-  return `Summarize the following transcription of a youtube video as a list of the most important points each starting with a fitting emoji. Ignore Sponsor Segments and Video Sponsors. Answer in ${language}.
+  return `summarize the key points from below text, presenting them under appropriate headings in simple words. Use various Emoji to symbolize different sections, and format the content as a cohesive paragraph under each heading. Retain important details and key points. Answer in ${language}.
   
   Format:
 
